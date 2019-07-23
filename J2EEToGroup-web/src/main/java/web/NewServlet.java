@@ -41,8 +41,9 @@ public class NewServlet extends HttpServlet {
             throws ServletException, IOException, ClassNotFoundException {
         App app = new App();
         //System.out.println(request.getAttribute("id"));
-        System.out.println("Daje: " +request.getParameter("id"));
+        
         System.out.println("Entra in servlet");
+        System.out.println("Daje: " +request.getParameter("id"));
         String response1 = app.getAllUser();
         response.setContentType("text/html;charset=UTF-8");
         try (PrintWriter out = response.getWriter()) {
