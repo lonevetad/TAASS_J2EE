@@ -28,6 +28,8 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class NewServlet extends HttpServlet {
 
+    public static String idUser = "";
+    public static AppUser userLogged = null;
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
@@ -42,22 +44,97 @@ public class NewServlet extends HttpServlet {
         App app = new App();
         //System.out.println(request.getAttribute("id"));
         
-        System.out.println("Entra in servlet");
-        System.out.println("Daje: " +request.getParameter("id"));
-        String response1 = app.getAllUser();
+        System.out.println("Entra in servlet");        
+        if(request != null){
+            System.out.println("Daje: " +request.getParameter("id"));
+            idUser = request.getParameter("id");
+            userLogged = app.loadUser(idUser);
+        }
+        
+        //-------------------------------------------------------------------
+        
+
+      
+
+        
+        //-------------------------------------------------------------------
+        //String response1 = app.getAllUser2();
         response.setContentType("text/html;charset=UTF-8");
         try (PrintWriter out = response.getWriter()) {
             /* TODO output your page here. You may use following sample code. */
+            
+
+           
+
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
             out.println("<title>Servlet NewServlet</title>");            
             out.println("</head>");
-            out.println("<body>");
+            out.println("<body>");    
+            out.println("<div id=\"appUserPage\">" +               
+                            "<div class=\"container\">"+
+                                "<div class=\"container-fluid user__header\">"+
+                                    "<img src=\"https://source.unsplash.com/random\" alt=\"\">" +
+                                        "<div class=\"user__header__name\"><h1>" +userLogged.getUserName() +"</h1></div>"+
+                                "</div>"+
+                                "<div class=\"user__body__info\">"+
+                                    "<div class=\"row\">" +
+                                        "<div class=\"col-md-3\"></div>"+
+                                        "<div class=\"col-md-3\">" +
+                                            "<i class=\"far fa-calendar-alt\"></i>" + userLogged.getuserEmail()+
+                                        "</div>"+
+                                        "<div class=\"col-md-3\">"+
+                                            "<i class=\"fas fa-users\"></i>Iscritto a 3 gruppi"+
+                                        "</div>"+
+                                        "<div class=\"col-md-3\"></div>"+
+                                    "</div>"+
+                                "</div>"+
+                                "<hr>"+
+                                "<div class=\"container-fluid user__body\">"+
+                                    "<div class=\"user__body__description\"><h3>Descrizione</h3>"+
+
+                                        "<textarea id=\"descriptionInput\"" +
+                                                  "cols=\"50\""+
+                                                  "rows=\"10\"" +
+                                                  "placeholder=\"Description\""+                                         
+                                                  "class=\"descriptionInput\""+
+                                                  "value=\"Piccola descrizione \""+
+                                        "></textarea>"+
+
+                                        "<button class=\"btn btn-default\" id=\"descriptionButton\" >"+
+                                            "Cambia Descrizione"+
+                                        "</button>"+
+
+                                    "</div>"+
+
+                                "</div>"+
+
+                                "<hr>"+
+                                
+                            "</div>"+
+                        "</div>");
             out.println("<h1>Servlet NewServlet at " + request.getContextPath() + "</h1>");
-            out.println("<h1> " + response1+ "</h1>");
+            out.println("<h1> " + userLogged.getUserName()+ "</h1>");
+            out.println("<h1> " + userLogged.getuserEmail()+ "</h1>");
             out.println("</body>");
             out.println("</html>");
+            
+            
+            
+            
+            /* FUNZIONANTE
+            out.println("<!DOCTYPE html>");
+            out.println("<html>");
+            out.println("<head>");
+            out.println("<title>Servlet NewServlet</title>");            
+            out.println("</head>");
+            out.println("<body>");    
+            out.println("<h1>Servlet NewServlet at " + request.getContextPath() + "</h1>");
+            out.println("<h1> " + userLogged.getUserName()+ "</h1>");
+            out.println("<h1> " + userLogged.getuserEmail()+ "</h1>");
+            out.println("</body>");
+            out.println("</html>");*/
         }
     }
 
@@ -126,6 +203,36 @@ public class NewServlet extends HttpServlet {
         }
         
         
+        public AppUser loadUser(String idUser) throws ClassNotFoundException{           
+      
+            //------------------------------------------------------------------ 
+            try{
+                Class.forName(dbDriver);
+                Connection conn = this.connect();
+                System.out.println("Got Connection");
+     
+                
+                PreparedStatement stat = conn.prepareStatement("select * from appuser where  userid = ?");
+                
+                Long x = Long.parseLong(idUser);
+                System.out.println(x);
+                stat.setLong(1, x);
+                
+                ResultSet rs = stat.executeQuery();
+                userLogged = new AppUser();
+                while (rs.next()) {                  
+                    userLogged.setUserName(rs.getString("username"));
+                    userLogged.setUserId(x);
+                    userLogged.setuserEmail(rs.getString("useremail"));
+                    return userLogged;
+                }
+                }catch(SQLException e){
+                   e.printStackTrace();
+                }               
+         
+        
+            return null;
+        }
         public String getAllUser() throws ClassNotFoundException {
       
             //------------------------------------------------------------------ 
@@ -136,6 +243,29 @@ public class NewServlet extends HttpServlet {
                 Statement statement = conn.createStatement();
                 String sql = "select * from appuser";
                 ResultSet rs = statement.executeQuery(sql);
+                while (rs.next()) {
+                    return rs.getString("username");
+                }
+                }catch(SQLException e){
+                   e.printStackTrace();
+                }               
+            return "zero";
+        }
+        
+               public String getAllUser2() throws ClassNotFoundException {
+      
+            //------------------------------------------------------------------ 
+            try{
+                Class.forName(dbDriver);
+                Connection conn = this.connect();
+                System.out.println("Got Connection");
+     
+                
+                PreparedStatement stat = conn.prepareStatement("select * from appuser where username = ?");
+                
+                stat.setString(1, "dbuser1");
+                
+                ResultSet rs = stat.executeQuery();
                 while (rs.next()) {
                     return rs.getString("username");
                 }
